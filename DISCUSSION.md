@@ -2,3 +2,4 @@
 - Added a limit to the number of rows that can be returned by the database at once, since this solution assumes the list of advocates can be very large (thousands of rows). In a full solution would need to implement either pagination or infinite scrolling to be able to retrieve full set of advocates
 - Used Material UI for a quick and easy upgrade to the visual elements. With more time I would add a custom theme to customize the look & feel to align with branding or internal design systems
 - Added a spinner when data is being fetched / refreshed from the API to let the user know that the results are being retrieved. It is not placed in the most beautiful place, with more time I would likely add it as an overlay to the table or display within / next to the search text box.
+- With more time I would also add in accessibility features / test with a screen reader to ensure the site is appropriately accessible to users with disabilities

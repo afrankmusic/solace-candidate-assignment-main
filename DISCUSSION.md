@@ -5,3 +5,4 @@
 - With more time I would also add in accessibility features / test with a screen reader to ensure the site is appropriately accessible to users with disabilities
 - With more time I would also add in phone number formatting for better readability
 - This site also does not support very complex searching, such as searching for City & specialties. The API can support this by having seperate query parameters for each search field. In a full implementation of this, I would also consider adding this in so that users can search specifically for MDs with a specific specialty in a certain city
+- Error handling in the API call is also missing, this would be a key feature to be able to display the appropriate error to the end user and log any information where appropriate for observability / debugging

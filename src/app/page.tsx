@@ -74,13 +74,18 @@ export default function Home() {
 
   const fetchData = () => {
     console.log("fetching advocates...");
+    // TODO - handle errors
     fetch(`/api/advocates?search=${searchTerm || ""}`).then((response) => {
-      response.json().then((jsonResponse) => {
-        setTotalAdvocates(jsonResponse.total);
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-        setIsLoading(false);
-      });
+      response
+        .json()
+        .then((jsonResponse) => {
+          setTotalAdvocates(jsonResponse.total);
+          setAdvocates(jsonResponse.data);
+          setFilteredAdvocates(jsonResponse.data);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     });
   };
 

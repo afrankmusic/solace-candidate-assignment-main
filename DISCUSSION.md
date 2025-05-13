@@ -4,3 +4,4 @@
 - Added a spinner when data is being fetched / refreshed from the API to let the user know that the results are being retrieved. It is not placed in the most beautiful place, with more time I would likely add it as an overlay to the table or display within / next to the search text box.
 - With more time I would also add in accessibility features / test with a screen reader to ensure the site is appropriately accessible to users with disabilities
 - With more time I would also add in phone number formatting for better readability
+- This site also does not support very complex searching, such as searching for City & specialties. The API can support this by having seperate query parameters for each search field. In a full implementation of this, I would also consider adding this in so that users can search specifically for MDs with a specific specialty in a certain city

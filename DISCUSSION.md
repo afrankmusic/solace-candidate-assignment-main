@@ -1,1 +1,2 @@
 - Project has been converted to requiring a database setup. This is to ensure a more consistent development environment and that each advocate record has a proper 'id' value, which is necessary to use as a key for rendering the lists of advocates in the React front-end
+- Added a limit to the number of rows that can be returned by the database at once, since this solution assumes the list of advocates can be very large (thousands of rows). In a full solution would need to implement either pagination or infinite scrolling to be able to retrieve full set of advocates

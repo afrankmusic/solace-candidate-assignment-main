@@ -2,49 +2,43 @@
 
 import { useEffect, useState, ChangeEventHandler } from "react";
 import { Advocate } from "./types";
+import { useDebounce } from "./utils";
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [totalAdvocates, setTotalAdvocates] = useState<number>();
 
-  useEffect(() => {
+  const fetchData = () => {
     console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
+    fetch(`/api/advocates?search=${searchTerm || ""}`).then((response) => {
       response.json().then((jsonResponse) => {
+        console.log(jsonResponse);
+        setTotalAdvocates(jsonResponse.total);
         setAdvocates(jsonResponse.data);
         setFilteredAdvocates(jsonResponse.data);
       });
     });
+  };
+
+  const debouncedFetchData = useDebounce(fetchData, 500);
+
+  useEffect(() => {
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    debouncedFetchData();
+  }, [searchTerm]);
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const searchTerm = e.target.value;
     setSearchTerm(searchTerm);
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        // TODO: Support full name searching, as opposed to just first or last name seraching
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        // TODO: Find partial matches within the specialties array
-        advocate.specialties.includes(searchTerm) ||
-        // TODO: using includes to search for yearsOfExperience seems like it might not make the most sense.
-        // Alternative could be to find yearsOfExperience that are >= the searched value (if value is an integer),
-        // with the assumption being that more years of experience is better and we are just searching for the MINIMUM yoe for the advocate
-        advocate.yearsOfExperience.toString().includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
   };
 
   const onClick = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
+    setSearchTerm("");
   };
 
   return (
@@ -57,7 +51,14 @@ export default function Home() {
         <p>
           Searching for: <span id="search-term">{searchTerm}</span>
         </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
+        <p>
+          Displaying {filteredAdvocates.length} advocates of {totalAdvocates}
+        </p>
+        <input
+          style={{ border: "1px solid black" }}
+          onChange={onChange}
+          value={searchTerm}
+        />
         <button onClick={onClick}>Reset Search</button>
       </div>
       <br />

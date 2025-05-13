@@ -1,0 +1,1 @@
+- Project has been converted to requiring a database setup. This is to ensure a more consistent development environment and that each advocate record has a proper 'id' value, which is necessary to use as a key for rendering the lists of advocates in the React front-end

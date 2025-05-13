@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEventHandler } from "react";
+import { Advocate } from "./types";
 
 export default function Home() {
-  const [advocates, setAdvocates] = useState([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [advocates, setAdvocates] = useState<Advocate[]>([]);
+  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>();
 
   useEffect(() => {
     console.log("fetching advocates...");
@@ -16,20 +18,24 @@ export default function Home() {
     });
   }, []);
 
-  const onChange = (e) => {
+  const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const searchTerm = e.target.value;
-
-    document.getElementById("search-term").innerHTML = searchTerm;
+    setSearchTerm(searchTerm);
 
     console.log("filtering advocates...");
     const filteredAdvocates = advocates.filter((advocate) => {
       return (
+        // TODO: Support full name searching, as opposed to just first or last name seraching
         advocate.firstName.includes(searchTerm) ||
         advocate.lastName.includes(searchTerm) ||
         advocate.city.includes(searchTerm) ||
         advocate.degree.includes(searchTerm) ||
+        // TODO: Find partial matches within the specialties array
         advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
+        // TODO: using includes to search for yearsOfExperience seems like it might not make the most sense.
+        // Alternative could be to find yearsOfExperience that are >= the searched value (if value is an integer),
+        // with the assumption being that more years of experience is better and we are just searching for the MINIMUM yoe for the advocate
+        advocate.yearsOfExperience.toString().includes(searchTerm)
       );
     });
 
@@ -49,7 +55,7 @@ export default function Home() {
       <div>
         <p>Search</p>
         <p>
-          Searching for: <span id="search-term"></span>
+          Searching for: <span id="search-term">{searchTerm}</span>
         </p>
         <input style={{ border: "1px solid black" }} onChange={onChange} />
         <button onClick={onClick}>Reset Search</button>

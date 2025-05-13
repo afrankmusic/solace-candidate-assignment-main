@@ -3,32 +3,100 @@
 import { useEffect, useState, ChangeEventHandler } from "react";
 import { Advocate } from "./types";
 import { useDebounce } from "./utils";
+import {
+  Box,
+  Button,
+  Paper,
+  TableRow,
+  TableHead,
+  TableContainer,
+  TableCell,
+  TableBody,
+  Table,
+  Stack,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
+
+type AdvocateTableProps = {
+  data: Advocate[];
+};
+
+const AdvocateTable = ({ data }: AdvocateTableProps): JSX.Element => {
+  return (
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>First Name</TableCell>
+            <TableCell>Last Name</TableCell>
+            <TableCell>City</TableCell>
+            <TableCell>Degree</TableCell>
+            <TableCell>Specialties</TableCell>
+            <TableCell>Years of Experience</TableCell>
+            <TableCell>Phone Number</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((advocate) => (
+            <TableRow
+              key={advocate.id}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {advocate.firstName}
+              </TableCell>
+              <TableCell>{advocate.lastName}</TableCell>
+              <TableCell>{advocate.city}</TableCell>
+              <TableCell>{advocate.degree}</TableCell>
+              <TableCell>
+                {advocate.specialties.map((s) => (
+                  <Box key={s}>{s}</Box>
+                ))}
+              </TableCell>
+              <TableCell>{advocate.yearsOfExperience}</TableCell>
+              <TableCell>{advocate.phoneNumber}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [totalAdvocates, setTotalAdvocates] = useState<number>();
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = () => {
     console.log("fetching advocates...");
+    // TODO - handle errors
     fetch(`/api/advocates?search=${searchTerm || ""}`).then((response) => {
-      response.json().then((jsonResponse) => {
-        console.log(jsonResponse);
-        setTotalAdvocates(jsonResponse.total);
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      });
+      response
+        .json()
+        .then((jsonResponse) => {
+          setTotalAdvocates(jsonResponse.total);
+          setAdvocates(jsonResponse.data);
+          setFilteredAdvocates(jsonResponse.data);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     });
   };
 
-  const debouncedFetchData = useDebounce(fetchData, 500);
+  const debouncedFetchData = useDebounce(fetchData, 1000);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
+    setIsLoading(true);
     debouncedFetchData();
   }, [searchTerm]);
 
@@ -42,59 +110,30 @@ export default function Home() {
   };
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term">{searchTerm}</span>
-        </p>
-        <p>
+    <Box sx={{ margin: 4 }}>
+      <Stack direction="column" spacing={4}>
+        <Typography variant="h1">Solace Advocates</Typography>
+        <Box>
+          <Typography variant="h2">Search Advocates</Typography>
+          <Stack direction="row">
+            <TextField
+              id="outlined-search"
+              label="Search"
+              value={searchTerm}
+              onChange={onChange}
+            />
+            <Button onClick={onClick}>Reset Search</Button>
+            {/**
+             * Note: this isn't the most beautiful spinner placement in the world, with more time
+             */}
+            {isLoading && <CircularProgress color="inherit" />}
+          </Stack>
+        </Box>
+        <Typography>
           Displaying {filteredAdvocates.length} advocates of {totalAdvocates}
-        </p>
-        <input
-          style={{ border: "1px solid black" }}
-          onChange={onChange}
-          value={searchTerm}
-        />
-        <button onClick={onClick}>Reset Search</button>
-      </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>City</th>
-            <th>Degree</th>
-            <th>Specialties</th>
-            <th>Years of Experience</th>
-            <th>Phone Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate) => {
-            return (
-              <tr key={advocate.id}>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s) => (
-                    <div key={s}>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </main>
+        </Typography>
+        <AdvocateTable data={filteredAdvocates} />
+      </Stack>
+    </Box>
   );
 }
